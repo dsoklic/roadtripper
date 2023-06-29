@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import { Car } from "./models/car";
 import CarService from "./car_service";
-import { Button, Col, Input, Layout, Row, Select, Space, message } from "antd";
+import { Button, Layout, List, message } from "antd";
 import { Content } from "antd/es/layout/layout";
 import Info from "./info";
 import { CarModel } from "./models/car_model";
@@ -53,6 +53,16 @@ function App() {
     loadCars();
   }, []);
 
+  const filteredCars = cars
+  .filter((car) => car.plateNumber.includes(filter.toUpperCase()))
+  .filter(
+    (car) =>
+      filteredStations.length === 0 ||
+      filteredStations.includes(
+        stations.find((x) => x._id === car.locationID)?.name ?? ""
+      )
+  );
+
   return (
     <Layout style={{ height: "100vh" }}>
       <Layout>
@@ -75,26 +85,30 @@ function App() {
               Refresh
             </Button>
           </div>
-          <Row>
-            {cars
-              .filter((car) => car.plateNumber.includes(filter.toUpperCase()))
-              .filter(
-                (car) =>
-                  filteredStations.length === 0 ||
-                  filteredStations.includes(
-                    stations.find((x) => x._id === car.locationID)?.name ?? ""
-                  )
-              )
-              .map((car) => (
-                <Col xs={6} xl={4}>
-                  <Info
+
+
+
+          <List
+            grid={{
+              gutter: 16,
+              xs: 1,
+              sm: 1,
+              md: 2,
+              lg: 2,
+              xl: 3,
+              xxl: 5,
+            }}
+            dataSource={filteredCars}
+            renderItem={(car: Car) => (
+              <List.Item>
+                <Info
                     selectedCar={car}
                     carModel={carModels.find((x) => x._id === car.carModelID)}
                     station={stations.find((x) => x._id === car.locationID)}
                   />
-                </Col>
-              ))}
-          </Row>
+              </List.Item>
+            )}
+          />  
         </Content>
       </Layout>
     </Layout>
